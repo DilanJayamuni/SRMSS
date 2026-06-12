@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Track & Fares{% endblock %}
+{% block page_title %}Track & Fares{% endblock %}
+{% block content %}
+<div class="panel">
+    <h3>Select Route</h3>
+    <select id="v_route_select" onchange="loadRouteViewer()"><option value="">-- Select --</option></select>
+    <div id="map" style="height:300px;"></div>
+</div>
+<div class="panel" id="fare-panel" style="display:none;">
+    <h3>Fare</h3>
+    <div class="form-row">
+        <select id="v_start_stop"></select>
+        <select id="v_end_stop"></select>
+        <button class="btn btn-primary" onclick="calculateViewerFare()">Calculate</button>
+    </div>
+    <div id="fare-result" style="margin-top:15px; font-size:18px; font-weight:bold; color:var(--primary);"></div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/dashboard.js"></script>{% endblock %}
