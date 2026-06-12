@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}User Management{% endblock %}
+{% block page_title %}User Management{% endblock %}
+{% block content %}
+<div class="panel">
+    <h3>Create User</h3>
+    <div class="form-row">
+        <input type="text" id="u_name" placeholder="Username">
+        <input type="password" id="u_pass" placeholder="Password">
+        <select id="u_role"><option>Operational Staff</option><option>Supervisor</option><option>Administrator</option></select>
+        <button class="btn btn-primary" onclick="createUser()">Add</button>
+    </div>
+</div>
+<div class="panel">
+    <h3>Users</h3>
+    <table><thead><tr><th>User</th><th>Role</th><th>Change</th><th>Action</th></tr></thead><tbody id="users-table-body"></tbody></table>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/users.js"></script>{% endblock %}
