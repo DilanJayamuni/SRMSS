@@ -7,8 +7,16 @@ def init_db():
     cursor = conn.cursor()
     cursor.executescript('''
         CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT, role TEXT);
+                         CREATE TABLE IF NOT EXISTS vehicles (id INTEGER PRIMARY KEY, registration_no TEXT UNIQUE, type TEXT, capacity INTEGER, mileage INTEGER DEFAULT 0);
     ''')
     
+    cursor.execute("PRAGMA table_info(vehicles)")
+    v_cols = [info[1] for info in cursor.fetchall()]
+    if 'mileage' not in v_cols: cursor.execute("ALTER TABLE vehicles ADD COLUMN mileage INTEGER DEFAULT 0")
+    if 'vehicle_number' not in v_cols: cursor.execute("ALTER TABLE vehicles ADD COLUMN vehicle_number TEXT")
+    if 'seats' not in v_cols:
+        cursor.execute("ALTER TABLE vehicles ADD COLUMN seats INTEGER DEFAULT 0")
+        cursor.execute("UPDATE vehicles SET seats = capacity WHERE seats IS NULL OR seats = 0")
 
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('admin', 'admin123', 'Administrator')")
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('super', 'super123', 'Supervisor')")

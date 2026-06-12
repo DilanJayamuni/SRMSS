@@ -10,8 +10,10 @@ def create_app():
 
     from controllers.login import login_bp
     from controllers.users import users_bp
+    from controllers.vehicles import vehicles_bp
 
     app.register_blueprint(login_bp)
     app.register_blueprint(users_bp)
+    app.register_blueprint(vehicles_bp)
 
     return app
