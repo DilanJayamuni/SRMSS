@@ -8,6 +8,7 @@ def init_db():
     cursor.executescript('''
         CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT, role TEXT);
     ''')
+    
 
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('admin', 'admin123', 'Administrator')")
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('super', 'super123', 'Supervisor')")
