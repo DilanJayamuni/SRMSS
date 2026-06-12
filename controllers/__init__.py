@@ -8,4 +8,10 @@ def create_app():
                 static_folder=os.path.join(base, 'static'))
     app.secret_key = 'srmss-secret-key-change-in-production'
 
+    from controllers.login import login_bp
+    from controllers.users import users_bp
+
+    app.register_blueprint(login_bp)
+    app.register_blueprint(users_bp)
+
     return app
