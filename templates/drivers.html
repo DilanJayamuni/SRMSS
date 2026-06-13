@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Driver Management{% endblock %}
+{% block page_title %}Driver Management{% endblock %}
+{% block header_actions %}{% endblock %}
+{% block content %}
+<div class="panel">
+    <h3>Add Driver</h3>
+    <div class="form-row">
+        <input type="text" id="d_name" placeholder="Name">
+        <input type="text" id="d_lic" placeholder="License No">
+        <input type="date" id="d_exp" placeholder="Expiry Date">
+        <button class="btn btn-primary" onclick="saveDriver()">Add</button>
+    </div>
+</div>
+<div class="panel">
+    <h3>Drivers</h3>
+    <table><thead><tr><th>Name</th><th>License</th><th>Expiry</th>{% if user.role == 'Administrator' %}<th>Actions</th>{% endif %}</tr></thead><tbody id="drivers-table-body"></tbody></table>
+</div>
+<div id="edit-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3>Edit Driver</h3>
+        <input type="hidden" id="edit_id">
+        <input type="text" id="edit_name" placeholder="Name">
+        <input type="text" id="edit_lic" placeholder="License No">
+        <input type="date" id="edit_exp" placeholder="Expiry Date">
+        <button class="btn btn-primary" onclick="saveEdit()">Save</button>
+        <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+    </div>
+</div>
+<div id="delete-modal" class="modal" style="display:none;">
+    <div class="modal-content" style="text-align:center;">
+        <h3>Confirm Deletion</h3>
+        <p>Are you sure you want to delete this driver?</p>
+        <p style="font-size:13px; opacity:0.7;">This action cannot be undone.</p>
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
+            <button class="btn btn-danger" onclick="confirmDelete()">Yes, Delete</button>
+            <button class="btn btn-secondary" onclick="closeDeleteModal()">No, Cancel</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/drivers.js"></script>{% endblock %}
