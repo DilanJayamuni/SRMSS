@@ -14,6 +14,7 @@ def create_app():
     from controllers.drivers import drivers_bp
     from controllers.assign_driver import assign_driver_bp
     from controllers.scheduling import scheduling_bp
+    from controllers.routes import routes_bp
 
     app.register_blueprint(login_bp)
     app.register_blueprint(users_bp)
@@ -21,5 +22,6 @@ def create_app():
     app.register_blueprint(drivers_bp)
     app.register_blueprint(assign_driver_bp)
     app.register_blueprint(scheduling_bp)
+    app.register_blueprint(routes_bp)
 
     return app
