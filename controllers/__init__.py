@@ -13,11 +13,13 @@ def create_app():
     from controllers.vehicles import vehicles_bp
     from controllers.drivers import drivers_bp
     from controllers.assign_driver import assign_driver_bp
+    from controllers.scheduling import scheduling_bp
 
     app.register_blueprint(login_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(vehicles_bp)
     app.register_blueprint(drivers_bp)
     app.register_blueprint(assign_driver_bp)
+    app.register_blueprint(scheduling_bp)
 
     return app

@@ -9,6 +9,16 @@ def init_db():
         CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT, role TEXT);
         CREATE TABLE IF NOT EXISTS vehicles (id INTEGER PRIMARY KEY, registration_no TEXT UNIQUE, type TEXT, capacity INTEGER, mileage INTEGER DEFAULT 0);
         CREATE TABLE IF NOT EXISTS drivers (id INTEGER PRIMARY KEY, name TEXT, license_no TEXT UNIQUE, license_expiry TEXT);
+        CREATE TABLE IF NOT EXISTS schedules (
+            id INTEGER PRIMARY KEY, 
+            route_id INTEGER, 
+            vehicle_id INTEGER, 
+            driver_id INTEGER, 
+            departure_time TEXT,
+            arrival_time TEXT NOT NULL DEFAULT '',
+            recurrence TEXT DEFAULT 'Once',
+            status TEXT DEFAULT 'Scheduled'
+        );
     ''')
     
     cursor.execute("PRAGMA table_info(vehicles)")
@@ -37,6 +47,14 @@ def init_db():
             SELECT id, driver_id, vehicle_id, assigned_at FROM assignments;
             DROP TABLE assignments;
         ''')
+
+    cursor.execute("PRAGMA table_info(schedules)")
+    s_cols = [info[1] for info in cursor.fetchall()]
+    if 'recurrence' not in s_cols: cursor.execute("ALTER TABLE schedules ADD COLUMN recurrence TEXT DEFAULT 'Once'")
+    if 'status' not in s_cols: cursor.execute("ALTER TABLE schedules ADD COLUMN status TEXT DEFAULT 'Scheduled'")
+    if 'arrival_time' not in s_cols:
+        cursor.execute("ALTER TABLE schedules ADD COLUMN arrival_time TEXT NOT NULL DEFAULT ''")
+        cursor.execute("UPDATE schedules SET arrival_time = departure_time WHERE arrival_time = ''")
 
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('admin', 'admin123', 'Administrator')")
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('super', 'super123', 'Supervisor')")
