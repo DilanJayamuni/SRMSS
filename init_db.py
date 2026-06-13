@@ -9,8 +9,14 @@ def init_db():
         CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT, role TEXT);
         CREATE TABLE IF NOT EXISTS vehicles (id INTEGER PRIMARY KEY, registration_no TEXT UNIQUE, type TEXT, capacity INTEGER, mileage INTEGER DEFAULT 0);
         CREATE TABLE IF NOT EXISTS drivers (id INTEGER PRIMARY KEY, name TEXT, license_no TEXT UNIQUE, license_expiry TEXT);
+        CREATE TABLE IF NOT EXISTS routes (id INTEGER PRIMARY KEY, route_name TEXT, start_point TEXT, end_point TEXT, distance_km REAL);
     ''')
     
+    cursor.execute("PRAGMA table_info(routes)")
+    columns = [info[1] for info in cursor.fetchall()]
+    if 'stops' not in columns: cursor.execute("ALTER TABLE routes ADD COLUMN stops TEXT")
+    if 'path_geometry' not in columns: cursor.execute("ALTER TABLE routes ADD COLUMN path_geometry TEXT")
+
     cursor.execute("PRAGMA table_info(vehicles)")
     v_cols = [info[1] for info in cursor.fetchall()]
     if 'mileage' not in v_cols: cursor.execute("ALTER TABLE vehicles ADD COLUMN mileage INTEGER DEFAULT 0")
