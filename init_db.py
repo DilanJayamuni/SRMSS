@@ -29,6 +29,14 @@ def init_db():
             DROP TABLE drivers;
             ALTER TABLE drivers_new RENAME TO drivers;
         ''')
+    
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='assignments'")
+    if cursor.fetchone():
+        cursor.executescript('''
+            INSERT OR IGNORE INTO assigndriver (id, driver_id, vehicle_id, assigned_at)
+            SELECT id, driver_id, vehicle_id, assigned_at FROM assignments;
+            DROP TABLE assignments;
+        ''')
 
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('admin', 'admin123', 'Administrator')")
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('super', 'super123', 'Supervisor')")
