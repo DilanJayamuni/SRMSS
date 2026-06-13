@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Control Center{% endblock %}
+{% block page_title %}Central Control Panel{% endblock %}
+{% block content %}
+<div class="panel">
+    <h3>Live Trip Status <span style="font-size:12px; opacity:0.7">(Today)</span></h3>
+    <div class="grid-2" id="trip-cards"></div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/scheduling.js"></script>{% endblock %}
