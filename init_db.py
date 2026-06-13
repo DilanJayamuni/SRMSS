@@ -7,7 +7,8 @@ def init_db():
     cursor = conn.cursor()
     cursor.executescript('''
         CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, password TEXT, role TEXT);
-                         CREATE TABLE IF NOT EXISTS vehicles (id INTEGER PRIMARY KEY, registration_no TEXT UNIQUE, type TEXT, capacity INTEGER, mileage INTEGER DEFAULT 0);
+        CREATE TABLE IF NOT EXISTS vehicles (id INTEGER PRIMARY KEY, registration_no TEXT UNIQUE, type TEXT, capacity INTEGER, mileage INTEGER DEFAULT 0);
+        CREATE TABLE IF NOT EXISTS drivers (id INTEGER PRIMARY KEY, name TEXT, license_no TEXT UNIQUE, license_expiry TEXT);
     ''')
     
     cursor.execute("PRAGMA table_info(vehicles)")
@@ -17,6 +18,17 @@ def init_db():
     if 'seats' not in v_cols:
         cursor.execute("ALTER TABLE vehicles ADD COLUMN seats INTEGER DEFAULT 0")
         cursor.execute("UPDATE vehicles SET seats = capacity WHERE seats IS NULL OR seats = 0")
+
+    cursor.execute("PRAGMA table_info(drivers)")
+    d_cols = [info[1] for info in cursor.fetchall()]
+    if 'license_expiry' not in d_cols: cursor.execute("ALTER TABLE drivers ADD COLUMN license_expiry TEXT")
+    if 'assigned_route' in d_cols:
+        cursor.executescript('''
+            CREATE TABLE drivers_new (id INTEGER PRIMARY KEY, name TEXT, license_no TEXT UNIQUE, license_expiry TEXT);
+            INSERT INTO drivers_new (id, name, license_no, license_expiry) SELECT id, name, license_no, license_expiry FROM drivers;
+            DROP TABLE drivers;
+            ALTER TABLE drivers_new RENAME TO drivers;
+        ''')
 
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('admin', 'admin123', 'Administrator')")
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('super', 'super123', 'Supervisor')")
