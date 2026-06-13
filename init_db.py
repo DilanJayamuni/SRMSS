@@ -20,6 +20,14 @@ def init_db():
             recurrence TEXT DEFAULT 'Once',
             status TEXT DEFAULT 'Scheduled'
         );
+        CREATE TABLE IF NOT EXISTS fuel_logs (id INTEGER PRIMARY KEY, vehicle_id INTEGER, date TEXT, liters REAL, cost REAL, status TEXT DEFAULT 'Pending');
+        CREATE TABLE IF NOT EXISTS maintenance_logs (id INTEGER PRIMARY KEY, vehicle_id INTEGER, description TEXT, cost REAL, date TEXT, mileage REAL, status TEXT DEFAULT 'Pending');
+        CREATE TABLE IF NOT EXISTS assigndriver (
+            id INTEGER PRIMARY KEY,
+            driver_id INTEGER UNIQUE NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
+            vehicle_id INTEGER UNIQUE NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+            assigned_at TEXT DEFAULT (datetime('now'))
+        );
     ''')
     
     cursor.execute("PRAGMA table_info(routes)")
@@ -61,6 +69,12 @@ def init_db():
     if 'arrival_time' not in s_cols:
         cursor.execute("ALTER TABLE schedules ADD COLUMN arrival_time TEXT NOT NULL DEFAULT ''")
         cursor.execute("UPDATE schedules SET arrival_time = departure_time WHERE arrival_time = ''")
+    
+    cursor.execute("PRAGMA table_info(fuel_logs)")
+    f_cols = [info[1] for info in cursor.fetchall()]
+    if 'status' not in f_cols: cursor.execute("ALTER TABLE fuel_logs ADD COLUMN status TEXT DEFAULT 'Pending'")
+    if 'cost' not in f_cols: cursor.execute("ALTER TABLE fuel_logs ADD COLUMN cost REAL")
+    if 'mileage' not in f_cols: cursor.execute("ALTER TABLE fuel_logs ADD COLUMN mileage REAL")
 
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('admin', 'admin123', 'Administrator')")
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('super', 'super123', 'Supervisor')")
