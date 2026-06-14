@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Reports & Analytics{% endblock %}
+{% block page_title %}Reports & Analytics{% endblock %}
+{% block header_actions %}
+  {% if user.role == 'Administrator' %}
+  <button class="btn btn-primary btn-sm no-print" id="exportCsvBtn">Export CSV</button>
+  {% endif %}
+  <button class="btn btn-secondary btn-sm no-print" onclick="window.print()">Print / PDF</button>
+{% endblock %}
+{% block content %}
+<div id="printArea">
+  <div class="tabs no-print" id="reportTabs">
+    <button class="tab active" data-tab="summary">Summary</button>
+    <button class="tab" data-tab="trips">Trips</button>
+    <button class="tab" data-tab="fleet">Fleet</button>
+    <button class="tab" data-tab="drivers">Drivers</button>
+    <button class="tab tab-admin" data-tab="fuel">Fuel</button>
+    <button class="tab tab-admin" data-tab="maintenance">Maintenance</button>
+  </div>
+
+  <div class="filter-bar no-print" id="filterBar">
+    <div id="filterControls"></div>
+    <div class="filter-actions">
+      <button class="btn btn-primary btn-sm" id="filterApply">Apply</button>
+      <button class="btn btn-secondary btn-sm" id="filterReset">Reset</button>
+    </div>
+  </div>
+
+  <div class="tab-content active" id="tab-summary"><div id="report-summary"></div></div>
+  <div class="tab-content" id="tab-trips"><div id="report-trips"></div></div>
+  <div class="tab-content" id="tab-fleet"><div id="report-fleet"></div></div>
+  <div class="tab-content" id="tab-drivers"><div id="report-drivers"></div></div>
+  <div class="tab-content" id="tab-fuel"><div id="report-fuel"></div></div>
+  <div class="tab-content" id="tab-maintenance"><div id="report-maintenance"></div></div>
+</div>
+<script>window.USER_ROLE = '{{ user.role }}';</script>
+{% endblock %}
+{% block scripts %}<script src="/static/js/reports.js"></script>{% endblock %}
