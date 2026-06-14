@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Control Center{% endblock %}
+{% block page_title %}Central Control Panel{% endblock %}
+{% block content %}
+<form method="get" action="/control" style="margin-bottom:15px; display:flex; gap:10px; align-items:center;">
+    <label for="control-date" style="font-weight:600;">Date:</label>
+    <input type="date" id="control-date" name="date" value="{{ selected_date }}" style="padding:6px 10px; border-radius:6px; border:1px solid var(--border); background:var(--card-bg); color:var(--text);">
+    <button type="submit" class="btn btn-primary">Load</button>
+</form>
+<div class="panel">
+    <h3>Live Trip Status <span style="font-size:12px; opacity:0.7">({{ selected_date if selected_date != today_str else 'Today' }})</span></h3>
+    <div class="grid-2" id="trip-cards"></div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/scheduling.js"></script>{% endblock %}

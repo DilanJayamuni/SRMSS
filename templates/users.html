@@ -7,13 +7,30 @@
     <div class="form-row">
         <input type="text" id="u_name" placeholder="Username">
         <input type="password" id="u_pass" placeholder="Password">
+        <input type="text" id="u_first_name" placeholder="First Name">
+        <input type="text" id="u_last_name" placeholder="Last Name">
+        <input type="text" id="u_phone" placeholder="Phone Number">
+        <input type="text" id="u_address" placeholder="Address">
         <select id="u_role"><option>Operational Staff</option><option>Supervisor</option><option>Administrator</option></select>
         <button class="btn btn-primary" onclick="createUser()">Add</button>
     </div>
 </div>
 <div class="panel">
     <h3>Users</h3>
-    <table><thead><tr><th>User</th><th>Role</th><th>Change</th><th>Action</th></tr></thead><tbody id="users-table-body"></tbody></table>
+    <table><thead><tr><th>User</th><th>First Name</th><th>Last Name</th><th>Role</th><th>Actions</th></tr></thead><tbody id="users-table-body"></tbody></table>
+</div>
+<div id="edit-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3>Edit User</h3>
+        <input type="hidden" id="edit_id">
+        <input type="text" id="edit_first_name" placeholder="First Name">
+        <input type="text" id="edit_last_name" placeholder="Last Name">
+        <input type="text" id="edit_phone" placeholder="Phone Number">
+        <input type="text" id="edit_address" placeholder="Address">
+        <select id="edit_role"><option>Operational Staff</option><option>Supervisor</option><option>Administrator</option></select>
+        <button class="btn btn-primary" onclick="saveEdit()">Save</button>
+        <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+    </div>
 </div>
 {% endblock %}
 {% block scripts %}<script src="/static/js/users.js"></script>{% endblock %}

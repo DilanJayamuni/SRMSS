@@ -1,17 +1,27 @@
 const API = '/api';
 
+function syncThemeUI(t) {
+    const els = document.querySelectorAll('.theme-switch');
+    els.forEach(function(el) {
+        if (el.tagName === 'INPUT' && el.type === 'checkbox') {
+            el.checked = t === 'dark';
+        } else {
+            el.innerText = t === 'dark' ? '☀️' : '🌙';
+        }
+    });
+}
+
 function initTheme() {
     const t = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', t);
-    const btn = document.querySelector('.theme-switch');
-    if (btn) btn.innerText = t === 'dark' ? '☀️' : '🌙';
+    syncThemeUI(t);
 }
 function toggleTheme() {
     const c = document.documentElement.getAttribute('data-theme');
     const n = c === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', n);
     localStorage.setItem('theme', n);
-    document.querySelector('.theme-switch').innerText = n === 'dark' ? '☀️' : '🌙';
+    syncThemeUI(n);
 }
 initTheme();
 
@@ -42,6 +52,20 @@ async function apiPut(endpoint, data) {
 async function apiDel(endpoint) {
     return await fetch(endpoint, { method: 'DELETE' });
 }
+
+function toggleSection(headerEl) {
+    var section = headerEl.parentElement;
+    section.classList.toggle('collapsed');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var headers = document.querySelectorAll('.nav-section-header');
+    for (var i = 0; i < headers.length; i++) {
+        headers[i].addEventListener('click', function() {
+            toggleSection(this);
+        });
+    }
+});
 
 function showToast(message, type) {
     const toast = document.createElement('div');

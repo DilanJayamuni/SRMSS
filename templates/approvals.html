@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Approvals{% endblock %}
+{% block page_title %}Approvals{% endblock %}
+{% block content %}
+<div class="panel">
+    <h3>Pending Approvals</h3>
+    <table><thead><tr><th>Vehicle</th><th>Item Type</th><th>Date</th><th>Mileage</th><th>Description</th><th>Action</th></tr></thead><tbody id="approvals-table-body"></tbody></table>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/approvals.js"></script>{% endblock %}

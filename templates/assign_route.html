@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Assign Routes{% endblock %}
+{% block page_title %}Assign Routes{% endblock %}
+{% block content %}
+<div class="panel">
+    <h3>Create Assignment</h3>
+    <div class="form-row">
+        <select id="a_vehicle"><option value="">-- Select Vehicle --</option></select>
+        <select id="a_route"><option value="">-- Select Route --</option></select>
+        <button class="btn btn-primary" onclick="saveAssignment()">Assign</button>
+    </div>
+</div>
+<div class="panel">
+    <h3>Current Assignments</h3>
+    <table><thead><tr><th>Route</th><th>Vehicle</th><th>Assigned Date</th>{% if user.role == 'Administrator' %}<th>Actions</th>{% endif %}</tr></thead><tbody id="assignments-table-body"></tbody></table>
+</div>
+<div id="edit-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3>Edit Assignment</h3>
+        <input type="hidden" id="edit_id">
+        <label style="font-size:13px; opacity:0.7;">Route</label>
+        <input type="text" id="edit_route" readonly style="background:#f0f0f0;">
+        <label style="font-size:13px; opacity:0.7;">Vehicle</label>
+        <select id="edit_vehicle"></select>
+        <button class="btn btn-primary" onclick="saveEdit()">Save</button>
+        <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+    </div>
+</div>
+<div id="delete-modal" class="modal" style="display:none;">
+    <div class="modal-content" style="text-align:center;">
+        <h3>Confirm Unassignment</h3>
+        <p>Are you sure you want to unassign this route from this vehicle?</p>
+        <p style="font-size:13px; opacity:0.7;">This action cannot be undone.</p>
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
+            <button class="btn btn-danger" onclick="confirmDelete()">Yes, Delete</button>
+            <button class="btn btn-secondary" onclick="closeDeleteModal()">No, Cancel</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/assign_route.js"></script>{% endblock %}

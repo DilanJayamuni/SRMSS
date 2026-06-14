@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Home{% endblock %}
+{% block content %}
+<div class="welcome-banner" id="welcome-banner">
+    <div>
+        <h1>Welcome, {{ user.username }}!</h1>
+        <p>Role: {{ user.role }} | Smart Road Transport Depot System</p>
+    </div>
+    <div class="live-clock">
+        <div class="time" id="dash-time">--:--:--</div>
+        <div class="date" id="dash-date">Loading date...</div>
+    </div>
+</div>
+
+{% if user.role == 'Administrator' %}
+<div class="dashboard-grid-3" id="admin-stats">
+    <div class="stat-card"><h4>Total Fleet Size</h4><div class="value">{{ fleet_size }}</div></div>
+    <div class="stat-card"><h4>Active Trips Today</h4><div class="value">{{ active_trips_today }}</div></div>
+    <div class="stat-card"><h4>Pending Approvals</h4><div class="value" style="color:var(--warning);">{{ pending_fuel + pending_maint }}</div><p style="font-size:12px; margin-top:5px;">{{ pending_fuel }} fuel + {{ pending_maint }} maintenance</p></div>
+    <div class="stat-card"><h4>Monthly Cost</h4><div class="value">Rs. {{ total_monthly_cost }}</div></div>
+    <div class="stat-card"><h4>Expiring Licenses</h4><div class="value" style="color:var(--danger);">{{ expiring_drivers }}</div><p style="font-size:12px; margin-top:5px;">Within 30 days</p></div>
+</div>
+<div class="dashboard-grid-2" id="admin-charts">
+    <div class="panel"><h3>Trip Status</h3><div class="chart-container-dashboard"><canvas id="admin-chart-trip-status"></canvas></div></div>
+    <div class="panel"><h3>Monthly Costs</h3><div class="chart-container-dashboard"><canvas id="admin-chart-monthly-costs"></canvas></div></div>
+    <div class="panel"><h3>Fleet Composition</h3><div class="chart-container-dashboard"><canvas id="admin-chart-fleet-composition"></canvas></div></div>
+    <div class="panel"><h3>License Expiry Timeline</h3><div class="chart-container-dashboard"><canvas id="admin-chart-license-expiry"></canvas></div></div>
+    <div class="panel"><h3>Vehicle Utilization</h3><div class="chart-container-dashboard"><canvas id="admin-chart-vehicle-utilization"></canvas></div></div>
+    <div class="panel"><h3>Route Completion Rates</h3><div class="chart-container-dashboard"><canvas id="admin-chart-route-completion"></canvas></div></div>
+</div>
+<div class="panel">
+    <h3>Today's Operations <span style="font-size:12px; opacity:0.7; font-weight:400;">(All trips)</span></h3>
+    <div id="admin-today-operations"></div>
+</div>
+<div class="panel">
+    <h3>Quick Actions</h3>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="/approvals" class="btn btn-warning">View Approvals</a>
+        <a href="/control" class="btn btn-secondary">Control Center</a>
+        <a href="/reports" class="btn btn-primary">Reports & Analytics</a>
+    </div>
+</div>
+
+{% elif user.role == 'Supervisor' %}
+<div class="dashboard-grid-3" id="super-stats">
+    <div class="stat-card"><h4>Today's Trips</h4><div class="value">{{ today_total_trips }}</div></div>
+    <div class="stat-card"><h4>Completion Rate</h4><div class="value" style="color:var(--success);">{{ completion_rate }}%</div></div>
+    <div class="stat-card"><h4>Active Fleet</h4><div class="value">{{ active_fleet_count }}</div></div>
+    <div class="stat-card"><h4>Pending Fuel Logs</h4><div class="value" style="color:var(--warning);">{{ pending_fuel }}</div></div>
+</div>
+<div class="dashboard-grid-2" id="super-charts">
+    <div class="panel"><h3>Today's Trip Status</h3><div class="chart-container-dashboard"><canvas id="super-chart-trip-status"></canvas></div></div>
+    <div class="panel"><h3>Route Completion Rates</h3><div class="chart-container-dashboard"><canvas id="super-chart-route-completion"></canvas></div></div>
+    <div class="panel"><h3>Vehicle Utilization</h3><div class="chart-container-dashboard"><canvas id="super-chart-vehicle-utilization"></canvas></div></div>
+    <div class="panel"><h3>Fuel Cost Trend</h3><div class="chart-container-dashboard"><canvas id="super-chart-fuel-cost"></canvas></div></div>
+</div>
+<div class="panel">
+    <h3>Today's Operations <span style="font-size:12px; opacity:0.7; font-weight:400;">(Next 5)</span></h3>
+    <div id="super-today-operations"></div>
+</div>
+<div class="panel">
+    <h3>Quick Actions</h3>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="/control" class="btn btn-secondary">Control Center</a>
+        <a href="/routes" class="btn btn-primary">Route Planning</a>
+        <a href="/fuel" class="btn btn-primary">Fuel Logs</a>
+    </div>
+</div>
+
+{% else %}
+<div class="dashboard-grid-3" id="staff-stats">
+    <div class="stat-card"><h4>My Trips Today</h4><div class="value">{{ my_trips_today }}</div></div>
+    <div class="stat-card"><h4>Total Fleet</h4><div class="value">{{ fleet_count }}</div></div>
+</div>
+<div class="dashboard-grid-2" id="staff-charts">
+    <div class="panel"><h3>Fleet Composition</h3><div class="chart-container-dashboard"><canvas id="staff-chart-fleet-composition"></canvas></div></div>
+    <div class="panel"><h3>My Today's Schedule</h3><div id="staff-today-schedule"></div></div>
+</div>
+<div class="panel">
+    <h3>Quick Actions</h3>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="/fuel" class="btn btn-primary">Log Fuel Entry</a>
+        <a href="/maintenance" class="btn btn-primary">Report Maintenance</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>window.USER_ROLE = '{{ user.role }}';</script>
+<script src="/static/js/dashboard.js"></script>
+{% endblock %}
