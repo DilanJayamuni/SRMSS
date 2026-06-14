@@ -14,12 +14,14 @@ def api_users():
     db = get_db()
     if request.method == 'POST':
         d = request.json
-        db.execute('INSERT INTO users (username, password, role) VALUES (?,?,?)',
-                   (d['username'], d['password'], d['role']))
+        db.execute(
+            'INSERT INTO users (username, password, role, first_name, last_name, phone_number, address) VALUES (?,?,?,?,?,?,?)',
+            (d['username'], d['password'], d['role'], d.get('first_name'), d.get('last_name'), d.get('phone_number'), d.get('address'))
+        )
         db.commit()
         db.close()
         return jsonify({"success": True})
-    items = db.execute('SELECT id, username, role FROM users').fetchall()
+    items = db.execute('SELECT id, username, role, first_name, last_name, phone_number, address FROM users').fetchall()
     db.close()
     return jsonify([dict(i) for i in items])
 
@@ -27,8 +29,18 @@ def api_users():
 def update_user(id):
     db = get_db()
     if request.method == 'PUT':
-        db.execute('UPDATE users SET role = ? WHERE id = ?', (request.json['role'], id))
+        d = request.json
+        db.execute(
+            'UPDATE users SET role = ?, first_name = ?, last_name = ?, phone_number = ?, address = ? WHERE id = ?',
+            (d.get('role'), d.get('first_name'), d.get('last_name'), d.get('phone_number'), d.get('address'), id)
+        )
     else:
+        user = db.execute('SELECT role FROM users WHERE id = ?', (id,)).fetchone()
+        if user and user['role'] == 'Administrator':
+            count = db.execute('SELECT COUNT(*) AS cnt FROM users WHERE role = ?', ('Administrator',)).fetchone()['cnt']
+            if count <= 1:
+                db.close()
+                return jsonify({"success": False, "error": "Cannot delete the last Administrator account. At least one Administrator must always exist."}), 400
         db.execute('DELETE FROM users WHERE id = ?', (id,))
     db.commit()
     db.close()

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Fleet Monitoring{% endblock %}
+{% block page_title %}Fleet Monitoring{% endblock %}
+{% block content %}
+<div class="panel">
+    <h3>Vehicle Utilization</h3>
+    <table><thead><tr><th>Reg No</th><th>Type</th><th>Cap</th><th>Mileage</th><th>Routes Assigned</th><th>Status</th></tr></thead><tbody id="monitoring-table-body"></tbody></table>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/dashboard.js"></script>{% endblock %}
