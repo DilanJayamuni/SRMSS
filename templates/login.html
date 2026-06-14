@@ -8,16 +8,80 @@
     <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        (function() {
+            var t = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-card">
-            <h2><i class="fas fa-truck"></i> SRMSS Login</h2>
-            <input type="text" id="login_user" placeholder="Username">
-            <input type="password" id="login_pass" placeholder="Password">
-            <button onclick="attemptLogin()">Sign In</button>
+        <svg class="highway-bg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <linearGradient id="ribbon1" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="var(--ribbon-1-start, #2563eb)" stop-opacity="0.15"/>
+                    <stop offset="50%" stop-color="var(--ribbon-1-mid, #3b82f6)" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="var(--ribbon-1-end, #60a5fa)" stop-opacity="0.15"/>
+                </linearGradient>
+                <linearGradient id="ribbon2" x1="100%" y1="0%" x2="0%" y2="0%">
+                    <stop offset="0%" stop-color="var(--ribbon-2-start, #7c3aed)" stop-opacity="0.12"/>
+                    <stop offset="50%" stop-color="var(--ribbon-2-mid, #8b5cf6)" stop-opacity="0.25"/>
+                    <stop offset="100%" stop-color="var(--ribbon-2-end, #a78bfa)" stop-opacity="0.12"/>
+                </linearGradient>
+                <linearGradient id="ribbon3" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="var(--ribbon-3-start, #0891b2)" stop-opacity="0.1"/>
+                    <stop offset="50%" stop-color="var(--ribbon-3-mid, #06b6d4)" stop-opacity="0.2"/>
+                    <stop offset="100%" stop-color="var(--ribbon-3-end, #22d3ee)" stop-opacity="0.1"/>
+                </linearGradient>
+            </defs>
+            <path class="ribbon ribbon-1" d="M-100,200 C200,100 400,400 700,250 C1000,100 1300,350 1540,200" fill="none" stroke="url(#ribbon1)" stroke-width="3" stroke-dasharray="12 24" stroke-linecap="round"/>
+            <path class="ribbon ribbon-2" d="M1540,650 C1200,750 900,500 600,650 C300,800 200,550 -100,650" fill="none" stroke="url(#ribbon2)" stroke-width="2.5" stroke-dasharray="8 20" stroke-linecap="round"/>
+            <path class="ribbon ribbon-3" d="M-100,450 C300,550 500,300 800,450 C1100,600 1400,350 1540,500" fill="none" stroke="url(#ribbon3)" stroke-width="2" stroke-dasharray="6 16" stroke-linecap="round"/>
+            <circle class="vehicle vehicle-1" r="4" fill="var(--vehicle-1, #3b82f6)"/>
+            <circle class="vehicle vehicle-2" r="3.5" fill="var(--vehicle-2, #8b5cf6)"/>
+            <circle class="vehicle vehicle-3" r="3" fill="var(--vehicle-3, #06b6d4)"/>
+            <circle class="vehicle vehicle-4" r="3.5" fill="var(--vehicle-4, #f59e0b)"/>
+        </svg>
+
+        <div class="login-card" id="loginCard">
+            <div class="login-card-header">
+                <div class="login-brand">
+                    <i class="fas fa-truck login-logo-icon"></i>
+                    <span class="login-brand-name">SRMSS</span>
+                </div>
+                <label class="theme-toggle" title="Toggle Theme">
+                    <input type="checkbox" class="theme-switch" onchange="toggleTheme()" id="loginThemeInput">
+                    <span class="toggle-track">
+                        <i class="fas fa-sun toggle-sun"></i>
+                        <span class="toggle-knob"></span>
+                        <i class="fas fa-moon toggle-moon"></i>
+                    </span>
+                </label>
+            </div>
+            <p class="login-tagline">Smart Road Transport Depot System</p>
+
+            <input type="text" id="login_user" placeholder="Username" autocomplete="username">
+            <input type="password" id="login_pass" placeholder="Password" autocomplete="current-password">
+
+            <div class="login-error" id="loginError">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="loginErrorText">Invalid username or password</span>
+            </div>
+
+            <button onclick="attemptLogin()" id="loginBtn">
+                <span class="btn-text" id="loginBtnText">Sign In</span>
+                <span class="btn-loader hidden" id="loginBtnLoader"><i class="fas fa-spinner fa-spin"></i></span>
+            </button>
+
+            <div class="login-footer">
+                <a class="login-forgot" href="#">Forgot password? Contact administrator</a>
+                <span class="login-copyright">&copy; SRMSS v1.0</span>
+            </div>
         </div>
     </div>
+
+    <script src="/static/js/main.js"></script>
     <script src="/static/js/login.js"></script>
 </body>
 </html>

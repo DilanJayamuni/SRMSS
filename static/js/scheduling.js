@@ -328,8 +328,10 @@ function closeViewModal() {
 (async function loadControlCenter() {
     const container = document.getElementById('trip-cards');
     if (!container) return;
-    const operations = await apiGet('/api/operations/today');
-    if (!operations) { container.innerHTML = '<p>No operations today.</p>'; return; }
+    const dateInput = document.getElementById('control-date');
+    const dateParam = dateInput ? `?date=${dateInput.value}` : '';
+    const operations = await apiGet('/api/operations/today' + dateParam);
+    if (!operations) { container.innerHTML = '<p>No operations on ' + (dateInput ? dateInput.value : 'today') + '.</p>'; return; }
     container.innerHTML = operations.map(op => {
         const isDelayed = op.status === 'Delayed';
         const isComplete = op.status === 'Completed';

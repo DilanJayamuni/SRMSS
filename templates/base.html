@@ -15,20 +15,7 @@
         <nav class="sidebar">
             <div class="sidebar-header">
                 <a href="/dashboard" class="logo-link">
-                    <div class="logo-icon">
-                        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="5" y="11" width="28" height="15" rx="2.5" stroke="#93c5fd" stroke-width="1.8" fill="none"/>
-                            <rect x="7" y="8" width="18" height="5" rx="1.5" stroke="#93c5fd" stroke-width="1.8" fill="none"/>
-                            <line x1="8" y1="16" x2="8" y2="24" stroke="#93c5fd" stroke-width="1.5" stroke-linecap="round"/>
-                            <line x1="13" y1="16" x2="13" y2="24" stroke="#93c5fd" stroke-width="1.5" stroke-linecap="round"/>
-                            <line x1="18" y1="16" x2="18" y2="24" stroke="#93c5fd" stroke-width="1.5" stroke-linecap="round"/>
-                            <line x1="23" y1="16" x2="23" y2="24" stroke="#93c5fd" stroke-width="1.5" stroke-linecap="round"/>
-                            <line x1="33" y1="18" x2="35" y2="18" stroke="#93c5fd" stroke-width="1.5" stroke-linecap="round"/>
-                            <line x1="33" y1="21" x2="35" y2="21" stroke="#93c5fd" stroke-width="1.5" stroke-linecap="round"/>
-                            <circle cx="12" cy="27.5" r="3" stroke="#93c5fd" stroke-width="1.8" fill="none"/>
-                            <circle cx="27" cy="27.5" r="3" stroke="#93c5fd" stroke-width="1.8" fill="none"/>
-                        </svg>
-                    </div>
+                    <img src="/static/logo.png" alt="SRMSS" class="logo-icon" onerror="this.style.display='none'">
                     <div class="logo-text">
                         <span class="logo-name">SRMSS</span>
                         <span class="logo-tagline">Smart Road Transport Depot</span>
@@ -40,32 +27,95 @@
                 Role: <span id="user-role-display">{{ user.role }}</span>
             </div>
             <ul id="nav-menu">
-                <li class="{% if active_page == 'dashboard' %}active{% endif %}"><a href="/dashboard">Dashboard</a></li>
+                <li class="nav-section">
+                    <div class="nav-section-header">
+                        <i class="fas fa-tachometer-alt section-icon"></i>
+                        Dashboard
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <ul class="nav-section-items">
+                        <li class="{% if active_page == 'dashboard' %}active{% endif %}"><a href="/dashboard">Dashboard</a></li>
+                    </ul>
+                </li>
+                <li class="nav-section">
+                    <div class="nav-section-header">
+                        <i class="fas fa-truck section-icon"></i>
+                        Operations
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <ul class="nav-section-items">
+                        {% if user.role in ('Administrator', 'Supervisor') %}
+                        <li class="{% if active_page == 'control' %}active{% endif %}"><a href="/control">Control Center</a></li>
+                        {% endif %}
+                        {% if user.role == 'Administrator' %}
+                        <li class="{% if active_page == 'monitoring' %}active{% endif %}"><a href="/monitoring">Fleet Monitoring</a></li>
+                        {% endif %}
+                        <li class="{% if active_page == 'viewer' %}active{% endif %}"><a href="/viewer">Track & Fares</a></li>
+                    </ul>
+                </li>
                 {% if user.role in ('Administrator', 'Supervisor') %}
-                <li class="{% if active_page == 'control' %}active{% endif %}"><a href="/control">Control Center</a></li>
-                <li class="{% if active_page == 'timetable' %}active{% endif %}"><a href="/timetable">Timetables</a></li>
-                {% endif %}
-                {% if user.role == 'Administrator' %}
-                <li class="{% if active_page == 'monitoring' %}active{% endif %}"><a href="/monitoring">Fleet Monitoring</a></li>
-                {% endif %}
-                <li class="{% if active_page == 'viewer' %}active{% endif %}"><a href="/viewer">Track & Fares</a></li>
-                {% if user.role in ('Administrator', 'Supervisor') %}
-                <li class="{% if active_page == 'routes' %}active{% endif %}"><a href="/routes">Route Planning</a></li>
-                <li class="{% if active_page == 'vehicles' %}active{% endif %}"><a href="/vehicles">Vehicles</a></li>
-                <li class="{% if active_page == 'drivers' %}active{% endif %}"><a href="/drivers">Drivers</a></li>
-                <li class="{% if active_page == 'assign_driver' %}active{% endif %}"><a href="/assign-driver">Assign Drivers</a></li>
-                <li class="{% if active_page == 'assign_route' %}active{% endif %}"><a href="/assign-route">Assign Routes</a></li>
+                <li class="nav-section">
+                    <div class="nav-section-header">
+                        <i class="fas fa-truck-moving section-icon"></i>
+                        Fleet
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <ul class="nav-section-items">
+                        <li class="{% if active_page == 'vehicles' %}active{% endif %}"><a href="/vehicles">Vehicles</a></li>
+                        <li class="{% if active_page == 'drivers' %}active{% endif %}"><a href="/drivers">Drivers</a></li>
+                        <li class="{% if active_page == 'assign_driver' %}active{% endif %}"><a href="/assign-driver">Driver Assignments</a></li>
+                        <li class="{% if active_page == 'assign_route' %}active{% endif %}"><a href="/assign-route">Route Assignments</a></li>
+                    </ul>
+                </li>
+                <li class="nav-section">
+                    <div class="nav-section-header">
+                        <i class="fas fa-calendar-alt section-icon"></i>
+                        Scheduling
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <ul class="nav-section-items">
+                        <li class="{% if active_page == 'routes' %}active{% endif %}"><a href="/routes">Route Planning</a></li>
+                        <li class="{% if active_page == 'timetable' %}active{% endif %}"><a href="/timetable">Timetables</a></li>
+                    </ul>
+                </li>
                 {% endif %}
                 {% if user.role in ('Administrator', 'Supervisor', 'Operational Staff') %}
-                <li class="{% if active_page == 'fuel' %}active{% endif %}"><a href="/fuel">Fuel Logs</a></li>
-                <li class="{% if active_page == 'maintenance' %}active{% endif %}"><a href="/maintenance">Maintenance Logs</a></li>
+                <li class="nav-section">
+                    <div class="nav-section-header">
+                        <i class="fas fa-clipboard-list section-icon"></i>
+                        Logs
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <ul class="nav-section-items">
+                        <li class="{% if active_page == 'fuel' %}active{% endif %}"><a href="/fuel">Fuel Logs</a></li>
+                        <li class="{% if active_page == 'maintenance' %}active{% endif %}"><a href="/maintenance">Maintenance Logs</a></li>
+                    </ul>
+                </li>
                 {% endif %}
                 {% if user.role in ('Administrator', 'Supervisor') %}
-                <li class="{% if active_page == 'reports' %}active{% endif %}"><a href="/reports">Reports & Analytics</a></li>
+                <li class="nav-section">
+                    <div class="nav-section-header">
+                        <i class="fas fa-chart-bar section-icon"></i>
+                        Reports
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <ul class="nav-section-items">
+                        <li class="{% if active_page == 'reports' %}active{% endif %}"><a href="/reports">Reports & Analytics</a></li>
+                    </ul>
+                </li>
                 {% endif %}
                 {% if user.role == 'Administrator' %}
-                <li class="{% if active_page == 'approvals' %}active{% endif %}"><a href="/approvals">Approvals</a></li>
-                <li class="{% if active_page == 'users' %}active{% endif %}"><a href="/users">User Management</a></li>
+                <li class="nav-section">
+                    <div class="nav-section-header">
+                        <i class="fas fa-cogs section-icon"></i>
+                        Administration
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <ul class="nav-section-items">
+                        <li class="{% if active_page == 'approvals' %}active{% endif %}"><a href="/approvals">Approvals</a></li>
+                        <li class="{% if active_page == 'users' %}active{% endif %}"><a href="/users">User Management</a></li>
+                    </ul>
+                </li>
                 {% endif %}
             </ul>
             <div class="sidebar-footer">
