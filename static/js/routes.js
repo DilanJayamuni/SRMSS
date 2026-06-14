@@ -8,6 +8,18 @@ let deleteTargetId = null;
 let pendingStopLatLng = null;
 let workflow = { mode: 'create', editingId: null, replacing: null };
 
+function colorIcon(color) {
+    return L.divIcon({
+        className: '',
+        html: `<div style="background:${color};border-radius:50%;width:22px;height:22px;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>`,
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
+    });
+}
+const greenIcon = colorIcon('#22c55e');
+const redIcon = colorIcon('#ef4444');
+const blueIcon = colorIcon('#3b82f6');
+
 function safeParseStops(stops) {
     if (!stops) return [];
     try { return JSON.parse(stops); } catch (_) {}
@@ -45,11 +57,11 @@ function initRouteMap() {
         }
         if (!tempRouteData.start) {
             tempRouteData.start = e.latlng;
-            L.marker(e.latlng).addTo(drawnRouteLayer).bindPopup("Start").openPopup();
+            L.marker(e.latlng, { icon: greenIcon }).addTo(drawnRouteLayer).bindPopup("Start").openPopup();
             document.getElementById('r_start_name').value = "Start";
         } else if (!tempRouteData.end) {
             tempRouteData.end = e.latlng;
-            L.marker(e.latlng).addTo(drawnRouteLayer).bindPopup("End").openPopup();
+            L.marker(e.latlng, { icon: redIcon }).addTo(drawnRouteLayer).bindPopup("End").openPopup();
             document.getElementById('r_end_name').value = "End";
             calculateRoute();
         }
@@ -101,8 +113,8 @@ async function calculateRoute() {
             tempRouteData.geometry = coords;
 
             drawnRouteLayer.clearLayers();
-            L.marker(start).addTo(drawnRouteLayer);
-            L.marker(end).addTo(drawnRouteLayer);
+            L.marker(start, { icon: greenIcon }).addTo(drawnRouteLayer);
+            L.marker(end, { icon: redIcon }).addTo(drawnRouteLayer);
 
             const polyline = L.polyline(coords, { color: '#2563eb', weight: 5 }).addTo(drawnRouteLayer);
             map.fitBounds(polyline.getBounds());
@@ -234,10 +246,10 @@ async function openEditMode(id) {
     stopMarkersLayer.clearLayers();
 
     if (tempRouteData.start) {
-        L.marker(tempRouteData.start).addTo(drawnRouteLayer).bindPopup("Start");
+        L.marker(tempRouteData.start, { icon: greenIcon }).addTo(drawnRouteLayer).bindPopup("Start");
     }
     if (tempRouteData.end) {
-        L.marker(tempRouteData.end).addTo(drawnRouteLayer).bindPopup("End");
+        L.marker(tempRouteData.end, { icon: redIcon }).addTo(drawnRouteLayer).bindPopup("End");
     }
     if (geometry.length > 0) {
         const polyline = L.polyline(geometry, { color: '#2563eb', weight: 5 }).addTo(drawnRouteLayer);
@@ -248,7 +260,7 @@ async function openEditMode(id) {
         });
     }
     stops.forEach(function(s) {
-        L.marker([s.lat, s.lon]).addTo(stopMarkersLayer).bindPopup(s.name);
+        L.marker([s.lat, s.lon], { icon: blueIcon }).addTo(stopMarkersLayer).bindPopup(s.name);
     });
     renderStopList();
     renderEditActions();
@@ -287,7 +299,7 @@ function confirmStop() {
     if (!stopName) { showToast('Stop name is required.', 'error'); return; }
     const latlng = pendingStopLatLng;
     closeStopModal();
-    L.marker(latlng).addTo(stopMarkersLayer).bindPopup(stopName);
+    L.marker(latlng, { icon: blueIcon }).addTo(stopMarkersLayer).bindPopup(stopName);
     tempRouteData.stops.push({ name: stopName, lat: latlng.lat, lon: latlng.lng });
     renderStopList();
 }
