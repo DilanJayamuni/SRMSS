@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 from init_db import get_db
 
@@ -13,7 +14,15 @@ def timetable_page():
 def control_page():
     if 'user' not in session:
         return redirect(url_for('login.index'))
-    return render_template('control.html', user=session['user'])
+    date_param = request.args.get('date')
+    if date_param:
+        try:
+            datetime.strptime(date_param, '%Y-%m-%d')
+        except ValueError:
+            date_param = None
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    selected_date = date_param or today_str
+    return render_template('control.html', user=session['user'], selected_date=selected_date, today_str=today_str)
 
 @scheduling_bp.route('/api/schedules', methods=['GET', 'POST'])
 def api_schedules():
