@@ -260,6 +260,41 @@ def reports_drivers_licenses():
     db.close()
     return jsonify([dict(r) for r in rows])
 
+@reports_bp.route('/api/reports/audit-log')
+def reports_audit_log():
+    if not require_admin():
+        return jsonify({"error": "Forbidden"}), 403
+    db = get_db()
+    date_from = request.args.get('date_from')
+    date_to = request.args.get('date_to')
+    user_id = request.args.get('user_id')
+    action_type = request.args.get('action_type')
+    table_name = request.args.get('table_name')
+    conds = []
+    params = []
+    if date_from:
+        conds.append("timestamp >= ?")
+        params.append(date_from)
+    if date_to:
+        conds.append("timestamp <= ?")
+        params.append(date_to)
+    if user_id:
+        conds.append("user_id = ?")
+        params.append(user_id)
+    if action_type:
+        conds.append("action_type = ?")
+        params.append(action_type)
+    if table_name:
+        conds.append("table_name = ?")
+        params.append(table_name)
+    q = "SELECT * FROM audit_log"
+    if conds:
+        q += " WHERE " + " AND ".join(conds)
+    q += " ORDER BY timestamp DESC"
+    rows = db.execute(q, params).fetchall()
+    db.close()
+    return jsonify([dict(r) for r in rows])
+
 def _csv_response(rows, filename):
     if not rows:
         si = StringIO()
@@ -396,8 +431,8 @@ def reports_export(report_name):
     elif report_name == 'licenses':
         window = request.args.get('window', type=int)
         q = '''SELECT name, license_no, license_expiry,
-                      CAST(julianday(license_expiry) - julianday('now') AS INTEGER) as days_until_expiry
-               FROM drivers WHERE license_expiry IS NOT NULL AND license_expiry != '' '''
+                       CAST(julianday(license_expiry) - julianday('now') AS INTEGER) as days_until_expiry
+                FROM drivers WHERE license_expiry IS NOT NULL AND license_expiry != '' '''
         params = []
         if window:
             q += " AND julianday(license_expiry) - julianday('now') <= ?"
@@ -406,6 +441,37 @@ def reports_export(report_name):
         rows = db.execute(q, params).fetchall()
         db.close()
         return _csv_response(rows, f'srmss_licenses_{today}.csv')
+
+    elif report_name == 'audit-log':
+        date_from = request.args.get('date_from')
+        date_to = request.args.get('date_to')
+        user_id = request.args.get('user_id')
+        action_type = request.args.get('action_type')
+        table_name = request.args.get('table_name')
+        conds = []
+        params = []
+        if date_from:
+            conds.append("timestamp >= ?")
+            params.append(date_from)
+        if date_to:
+            conds.append("timestamp <= ?")
+            params.append(date_to)
+        if user_id:
+            conds.append("user_id = ?")
+            params.append(user_id)
+        if action_type:
+            conds.append("action_type = ?")
+            params.append(action_type)
+        if table_name:
+            conds.append("table_name = ?")
+            params.append(table_name)
+        q = "SELECT * FROM audit_log"
+        if conds:
+            q += " WHERE " + " AND ".join(conds)
+        q += " ORDER BY timestamp DESC"
+        rows = db.execute(q, params).fetchall()
+        db.close()
+        return _csv_response(rows, f'srmss_audit_log_{today}.csv')
 
     db.close()
     return jsonify({"error": "Unknown report"}), 404

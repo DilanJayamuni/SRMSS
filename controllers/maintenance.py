@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
-from init_db import get_db
+from init_db import get_db, log_audit
 
 maintenance_bp = Blueprint('maintenance', __name__)
 
@@ -71,10 +71,12 @@ def update_maintenance(id):
     if item['status'] != 'Pending' and role != 'Administrator':
         db.close()
         return jsonify({"error": "Forbidden"}), 403
+    old = dict(item)
     d = request.json
     db.execute('UPDATE maintenance_logs SET vehicle_id=?, description=?, cost=?, date=?, mileage=? WHERE id=?',
                (d['vehicle_id'], d['description'], d['cost'], d.get('date'), d.get('mileage'), id))
     db.commit()
+    log_audit('EDIT', 'maintenance_logs', id, old, d)
     db.close()
     return jsonify({"success": True})
 
@@ -91,8 +93,10 @@ def delete_maintenance(id):
     if item['status'] != 'Pending' and role != 'Administrator':
         db.close()
         return jsonify({"error": "Forbidden"}), 403
+    old = dict(item)
     db.execute('DELETE FROM maintenance_logs WHERE id=?', (id,))
     db.commit()
+    log_audit('DELETE', 'maintenance_logs', id, old)
     db.close()
     return jsonify({"success": True})
 

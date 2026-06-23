@@ -67,6 +67,11 @@ function buildFilterBar(tab) {
   if (tab === 'maintenance') {
     html += '<div class="filter-group"><label>Status</label><select id="f-status" class="filter-input"><option value="">All Status</option><option value="Pending">Pending</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option></select></div>';
   }
+  if (tab === 'audit-log') {
+    html += '<div class="filter-group"><label>Action</label><select id="f-action_type" class="filter-input"><option value="">All Actions</option><option value="EDIT">EDIT</option><option value="DELETE">DELETE</option></select></div>';
+    html += '<div class="filter-group"><label>Table</label><select id="f-table_name" class="filter-input"><option value="">All Tables</option><option value="vehicles">Vehicles</option><option value="drivers">Drivers</option><option value="routes">Routes</option><option value="schedules">Schedules</option><option value="fuel_logs">Fuel Logs</option><option value="maintenance_logs">Maintenance Logs</option><option value="assigndriver">Assign Driver</option><option value="assignroute">Assign Route</option><option value="users">Users</option></select></div>';
+    html += '<div class="filter-group"><label>User</label><select id="f-user_id" class="filter-input"><option value="">All Users</option></select></div>';
+  }
   c.innerHTML = html;
   populateDropdowns(tab);
 }
@@ -76,10 +81,12 @@ async function populateDropdowns(tab) {
   const drvEl = document.getElementById('f-driver_id');
   const rteEl = document.getElementById('f-route_id');
   const typeEl = document.getElementById('f-vehicle_type');
-  const [vehicles, drivers, routes] = await Promise.all([
+  const userEl = document.getElementById('f-user_id');
+  const [vehicles, drivers, routes, users] = await Promise.all([
     vehEl || typeEl ? apiGet('/api/vehicles') : null,
     drvEl ? apiGet('/api/drivers') : null,
-    rteEl ? apiGet('/api/routes') : null
+    rteEl ? apiGet('/api/routes') : null,
+    userEl ? apiGet('/api/users') : null
   ]);
   if (vehEl && vehicles) vehicles.forEach(v => { vehEl.innerHTML += `<option value="${v.id}">${v.registration_no}</option>`; });
   if (drvEl && drivers) drivers.forEach(d => { drvEl.innerHTML += `<option value="${d.id}">${d.name}</option>`; });
@@ -87,6 +94,9 @@ async function populateDropdowns(tab) {
   if (typeEl && vehicles) {
     const types = [...new Set(vehicles.map(v => v.type).filter(Boolean))];
     types.forEach(t => { typeEl.innerHTML += `<option value="${t}">${t}</option>`; });
+  }
+  if (userEl && users) {
+    users.forEach(u => { userEl.innerHTML += `<option value="${u.id}">${u.username}</option>`; });
   }
 }
 
@@ -107,7 +117,7 @@ function setupExport() {
   const btn = document.getElementById('exportCsvBtn');
   if (!btn) return;
   btn.addEventListener('click', () => {
-    const reportMap = { summary: 'summary', trips: 'trips', fleet: 'fleet', drivers: 'drivers', fuel: 'fuel', maintenance: 'maintenance' };
+    const reportMap = { summary: 'summary', trips: 'trips', fleet: 'fleet', drivers: 'drivers', fuel: 'fuel', maintenance: 'maintenance', 'audit-log': 'audit-log' };
     const name = reportMap[currentTab];
     if (!name) return;
     const params = { ...filterState };
@@ -121,7 +131,7 @@ async function loadTab(name) {
   if (!el) return;
   el.innerHTML = '<div style="text-align:center;padding:40px;opacity:0.5;">Loading...</div>';
   try {
-    const fns = { summary: loadSummary, trips: loadTrips, fleet: loadFleet, drivers: loadDrivers, fuel: loadFuel, maintenance: loadMaintenance };
+    const fns = { summary: loadSummary, trips: loadTrips, fleet: loadFleet, drivers: loadDrivers, fuel: loadFuel, maintenance: loadMaintenance, 'audit-log': loadAuditLog };
     await fns[name](el);
   } catch (e) {
     el.innerHTML = '<div class="panel"><p style="color:var(--danger);">Error loading report.</p></div>';
@@ -341,4 +351,33 @@ async function loadMaintenance(el) {
         ${pendData.map(r => `<tr><td>${r.registration_no}</td><td>${r.date}</td><td>${r.description}</td><td>Rs. ${r.cost}</td><td>${r.mileage || '-'}</td></tr>`).join('')}
       </tbody></table></div>`;
   }
+}
+
+async function loadAuditLog(el) {
+  const data = await apiGet('/api/reports/audit-log' + qs(filterState));
+  if (!data || !data.length) {
+    el.innerHTML = '<div class="panel"><p>No audit log entries found.</p></div>';
+    return;
+  }
+  el.innerHTML = `<div class="panel"><h3>Audit Trail</h3>
+    <table><thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Table</th><th>Record ID</th></tr></thead>
+    <tbody id="audit-log-body">
+      ${data.map((r, i) => `<tr class="audit-row" data-idx="${i}" onclick="toggleAuditDetail(${i})">
+        <td>${r.timestamp}</td><td>${r.username || r.user_id}</td>
+        <td><span class="badge ${r.action_type === 'DELETE' ? 'badge-red' : 'badge-blue'}">${r.action_type}</span></td>
+        <td>${r.table_name}</td><td>${r.record_id}</td>
+      </tr><tr class="audit-detail" id="audit-detail-${i}" style="display:none;">
+        <td colspan="5">
+          <div class="audit-json-panel">
+            <div><strong>Old Values:</strong><pre class="audit-json">${r.old_values ? JSON.stringify(JSON.parse(r.old_values), null, 2) : 'null'}</pre></div>
+            <div><strong>New Values:</strong><pre class="audit-json">${r.new_values ? JSON.stringify(JSON.parse(r.new_values), null, 2) : 'null'}</pre></div>
+          </div>
+        </td>
+      </tr>`).join('')}
+    </tbody></table></div>`;
+}
+
+function toggleAuditDetail(idx) {
+  const row = document.getElementById(`audit-detail-${idx}`);
+  if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
 }

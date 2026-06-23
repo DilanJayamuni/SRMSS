@@ -16,6 +16,7 @@
     <button class="tab" data-tab="drivers">Drivers</button>
     <button class="tab tab-admin" data-tab="fuel">Fuel</button>
     <button class="tab tab-admin" data-tab="maintenance">Maintenance</button>
+    <button class="tab tab-admin" data-tab="audit-log">Audit Log</button>
   </div>
 
   <div class="filter-bar no-print" id="filterBar">
@@ -32,6 +33,7 @@
   <div class="tab-content" id="tab-drivers"><div id="report-drivers"></div></div>
   <div class="tab-content" id="tab-fuel"><div id="report-fuel"></div></div>
   <div class="tab-content" id="tab-maintenance"><div id="report-maintenance"></div></div>
+  <div class="tab-content" id="tab-audit-log"><div id="report-audit-log"></div></div>
 </div>
 <script>window.USER_ROLE = '{{ user.role }}';</script>
 {% endblock %}

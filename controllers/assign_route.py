@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
-from init_db import get_db
+from init_db import get_db, log_audit
 
 assign_route_bp = Blueprint('assign_route', __name__)
 
@@ -87,6 +87,7 @@ def update_assign_route(id):
     if not current:
         db.close()
         return jsonify({"error": "Not found"}), 404
+    old = dict(current)
 
     vehicle_id = d.get('vehicle_id', current['vehicle_id'])
 
@@ -98,6 +99,7 @@ def update_assign_route(id):
     db.execute('UPDATE assignroute SET vehicle_id=? WHERE id=?',
                (vehicle_id, id))
     db.commit()
+    log_audit('EDIT', 'assignroute', id, old, {'vehicle_id': vehicle_id, 'route_id': current['route_id']})
     db.close()
     return jsonify({"success": True})
 
@@ -106,7 +108,12 @@ def delete_assign_route(id):
     if 'user' not in session or session['user']['role'] != 'Administrator':
         return jsonify({"error": "Forbidden"}), 403
     db = get_db()
+    old = db.execute('SELECT * FROM assignroute WHERE id=?', (id,)).fetchone()
+    if not old:
+        db.close()
+        return jsonify({"error": "Not found"}), 404
     db.execute('DELETE FROM assignroute WHERE id=?', (id,))
     db.commit()
+    log_audit('DELETE', 'assignroute', id, dict(old))
     db.close()
     return jsonify({"success": True})

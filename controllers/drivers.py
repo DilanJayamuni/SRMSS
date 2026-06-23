@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
-from init_db import get_db
+from init_db import get_db, log_audit
 
 drivers_bp = Blueprint('drivers', __name__)
 
@@ -35,10 +35,15 @@ def update_driver(id):
     if 'user' not in session or session['user']['role'] != 'Administrator':
         return jsonify({"error": "Forbidden"}), 403
     db = get_db()
+    old = db.execute('SELECT * FROM drivers WHERE id=?', (id,)).fetchone()
+    if not old:
+        db.close()
+        return jsonify({"error": "Not found"}), 404
     d = request.json
     db.execute('UPDATE drivers SET name=?, license_no=?, license_expiry=? WHERE id=?',
                (d['name'], d['license_no'], d.get('license_expiry', ''), id))
     db.commit()
+    log_audit('EDIT', 'drivers', id, dict(old), d)
     db.close()
     return jsonify({"success": True})
 
@@ -53,7 +58,12 @@ def delete_driver(id):
         db.close()
         return jsonify({"error": f"Cannot delete: this driver is used in {schedule_count['cnt']} schedule(s). Remove or reschedule these entries first."}), 409
 
+    old = db.execute('SELECT * FROM drivers WHERE id=?', (id,)).fetchone()
+    if not old:
+        db.close()
+        return jsonify({"error": "Not found"}), 404
     db.execute('DELETE FROM drivers WHERE id=?', (id,))
     db.commit()
+    log_audit('DELETE', 'drivers', id, dict(old))
     db.close()
     return jsonify({"success": True})

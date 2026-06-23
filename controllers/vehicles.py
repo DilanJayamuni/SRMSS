@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
-from init_db import get_db
+from init_db import get_db, log_audit
 
 vehicles_bp = Blueprint('vehicles', __name__)
 
@@ -35,10 +35,15 @@ def update_vehicle(id):
     if 'user' not in session or session['user']['role'] != 'Administrator':
         return jsonify({"error": "Forbidden"}), 403
     db = get_db()
+    old = db.execute('SELECT * FROM vehicles WHERE id=?', (id,)).fetchone()
+    if not old:
+        db.close()
+        return jsonify({"error": "Not found"}), 404
     d = request.json
     db.execute('UPDATE vehicles SET registration_no=?, type=?, seats=?, mileage=?, vehicle_number=? WHERE id=?',
                (d['registration_no'], d['type'], d['seats'], d.get('mileage', 0), d.get('vehicle_number', ''), id))
     db.commit()
+    log_audit('EDIT', 'vehicles', id, dict(old), d)
     db.close()
     return jsonify({"success": True})
 
@@ -47,7 +52,12 @@ def delete_vehicle(id):
     if 'user' not in session or session['user']['role'] != 'Administrator':
         return jsonify({"error": "Forbidden"}), 403
     db = get_db()
+    old = db.execute('SELECT * FROM vehicles WHERE id=?', (id,)).fetchone()
+    if not old:
+        db.close()
+        return jsonify({"error": "Not found"}), 404
     db.execute('DELETE FROM vehicles WHERE id=?', (id,))
     db.commit()
+    log_audit('DELETE', 'vehicles', id, dict(old))
     db.close()
     return jsonify({"success": True})

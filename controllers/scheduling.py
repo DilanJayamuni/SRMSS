@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
-from init_db import get_db
+from init_db import get_db, log_audit
 
 scheduling_bp = Blueprint('scheduling', __name__)
 
@@ -63,6 +63,10 @@ def update_schedule(id):
     if 'user' not in session or session['user']['role'] != 'Administrator':
         return jsonify({"error": "Forbidden"}), 403
     db = get_db()
+    old = db.execute('SELECT * FROM schedules WHERE id=?', (id,)).fetchone()
+    if not old:
+        db.close()
+        return jsonify({"error": "Not found"}), 404
     d = request.json
     departure = d.get('departure_time', '')
     arrival = d.get('arrival_time', '')
@@ -82,6 +86,7 @@ def update_schedule(id):
                (d['route_id'], d['vehicle_id'], d['driver_id'],
                 departure, arrival, d.get('recurrence', 'Once'), id))
     db.commit()
+    log_audit('EDIT', 'schedules', id, dict(old), d)
     db.close()
     return jsonify({"success": True})
 
@@ -90,8 +95,13 @@ def delete_schedule(id):
     if 'user' not in session or session['user']['role'] != 'Administrator':
         return jsonify({"error": "Forbidden"}), 403
     db = get_db()
+    old = db.execute('SELECT * FROM schedules WHERE id=?', (id,)).fetchone()
+    if not old:
+        db.close()
+        return jsonify({"error": "Not found"}), 404
     db.execute('DELETE FROM schedules WHERE id=?', (id,))
     db.commit()
+    log_audit('DELETE', 'schedules', id, dict(old))
     db.close()
     return jsonify({"success": True})
 

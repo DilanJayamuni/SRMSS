@@ -503,6 +503,13 @@ th { background: rgba(0,0,0,0.03); color: var(--text); font-weight: 600; }
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
 
+.audit-row { cursor: pointer; }
+.audit-row:hover { background: rgba(37,99,235,0.06); }
+.audit-detail td { padding: 15px; background: rgba(0,0,0,0.02); }
+.audit-json-panel { display: flex; gap: 20px; flex-wrap: wrap; }
+.audit-json-panel > div { flex: 1; min-width: 200px; }
+.audit-json { background: var(--input-bg); padding: 12px; border-radius: 6px; font-size: 12px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; max-height: 300px; overflow-y: auto; border: 1px solid var(--input-border); margin: 5px 0 0 0; }
+
 @media print {
     body * { visibility: hidden; }
     #printArea, #printArea * { visibility: visible; }

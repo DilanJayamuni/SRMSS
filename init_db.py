@@ -1,4 +1,6 @@
+import json
 import sqlite3
+from flask import session
 
 DB_NAME = 'srmss_rbac.db'
 
@@ -164,12 +166,40 @@ def init_db():
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_sched_driver_departure ON schedules(driver_id, departure_time)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_proposal_status ON schedule_proposals(status)")
 
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS audit_log (
+            id INTEGER PRIMARY KEY,
+            user_id INTEGER,
+            username TEXT,
+            action_type TEXT,
+            table_name TEXT,
+            record_id INTEGER,
+            old_values TEXT,
+            new_values TEXT,
+            timestamp TEXT DEFAULT (datetime('now'))
+        )
+    ''')
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_log(timestamp)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_audit_table ON audit_log(table_name)")
+
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('admin', 'admin123', 'Administrator')")
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('super', 'super123', 'Supervisor')")
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('staff', 'staff123', 'Operational Staff')")
 
     conn.commit()
     conn.close()
+
+def log_audit(action_type, table_name, record_id, old_values, new_values=None):
+    user = session.get('user', {})
+    db = get_db()
+    db.execute(
+        'INSERT INTO audit_log (user_id, username, action_type, table_name, record_id, old_values, new_values) VALUES (?,?,?,?,?,?,?)',
+        (user.get('id'), user.get('username'), action_type, table_name, record_id,
+         json.dumps(old_values, default=str) if old_values else None,
+         json.dumps(new_values, default=str) if new_values else None)
+    )
+    db.commit()
+    db.close()
 
 def get_db():
     conn = sqlite3.connect(DB_NAME)

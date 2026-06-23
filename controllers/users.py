@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
-from init_db import get_db
+from init_db import get_db, log_audit
 
 users_bp = Blueprint('users', __name__)
 
@@ -29,19 +29,27 @@ def api_users():
 def update_user(id):
     db = get_db()
     if request.method == 'PUT':
+        old = db.execute('SELECT * FROM users WHERE id = ?', (id,)).fetchone()
+        if not old:
+            db.close()
+            return jsonify({"error": "Not found"}), 404
         d = request.json
         db.execute(
             'UPDATE users SET role = ?, first_name = ?, last_name = ?, phone_number = ?, address = ? WHERE id = ?',
             (d.get('role'), d.get('first_name'), d.get('last_name'), d.get('phone_number'), d.get('address'), id)
         )
+        db.commit()
+        log_audit('EDIT', 'users', id, dict(old), d)
     else:
-        user = db.execute('SELECT role FROM users WHERE id = ?', (id,)).fetchone()
-        if user and user['role'] == 'Administrator':
+        old = db.execute('SELECT * FROM users WHERE id = ?', (id,)).fetchone()
+        if old and old['role'] == 'Administrator':
             count = db.execute('SELECT COUNT(*) AS cnt FROM users WHERE role = ?', ('Administrator',)).fetchone()['cnt']
             if count <= 1:
                 db.close()
                 return jsonify({"success": False, "error": "Cannot delete the last Administrator account. At least one Administrator must always exist."}), 400
         db.execute('DELETE FROM users WHERE id = ?', (id,))
-    db.commit()
+        db.commit()
+        if old:
+            log_audit('DELETE', 'users', id, dict(old))
     db.close()
     return jsonify({"success": True})

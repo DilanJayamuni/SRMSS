@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
-from init_db import get_db
+from init_db import get_db, log_audit
 
 routes_bp = Blueprint('routes', __name__)
 
@@ -35,10 +35,15 @@ def update_route(id):
     if 'user' not in session or session['user']['role'] != 'Administrator':
         return jsonify({"error": "Forbidden"}), 403
     db = get_db()
+    old = db.execute('SELECT * FROM routes WHERE id=?', (id,)).fetchone()
+    if not old:
+        db.close()
+        return jsonify({"error": "Not found"}), 404
     d = request.json
     db.execute('UPDATE routes SET route_name=?, start_point=?, end_point=?, distance_km=?, path_geometry=?, stops=? WHERE id=?',
                (d['route_name'], d['start_point'], d['end_point'], d['distance_km'], d['path_geometry'], d['stops'], id))
     db.commit()
+    log_audit('EDIT', 'routes', id, dict(old), d)
     db.close()
     return jsonify({"success": True})
 
@@ -58,8 +63,13 @@ def delete_route(id):
         db.close()
         return jsonify({"error": "Cannot delete: this route is currently assigned to a vehicle. Unassign the route first."}), 409
 
+    old = db.execute('SELECT * FROM routes WHERE id=?', (id,)).fetchone()
+    if not old:
+        db.close()
+        return jsonify({"error": "Not found"}), 404
     db.execute('DELETE FROM routes WHERE id=?', (id,))
     db.commit()
+    log_audit('DELETE', 'routes', id, dict(old))
     db.close()
     return jsonify({"success": True})
 

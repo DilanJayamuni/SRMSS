@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
-from init_db import get_db
+from init_db import get_db, log_audit
 
 assign_driver_bp = Blueprint('assign_driver', __name__)
 
@@ -101,6 +101,7 @@ def update_assign_driver(id):
     if not current:
         db.close()
         return jsonify({"error": "Not found"}), 404
+    old = dict(current)
 
     driver_id = d.get('driver_id', current['driver_id'])
     vehicle_id = d.get('vehicle_id', current['vehicle_id'])
@@ -128,6 +129,7 @@ def update_assign_driver(id):
     db.execute('UPDATE assigndriver SET driver_id=?, vehicle_id=? WHERE id=?',
                (driver_id, vehicle_id, id))
     db.commit()
+    log_audit('EDIT', 'assigndriver', id, old, {'driver_id': driver_id, 'vehicle_id': vehicle_id})
     db.close()
     return jsonify({"success": True})
 
@@ -136,7 +138,12 @@ def delete_assign_driver(id):
     if 'user' not in session or session['user']['role'] != 'Administrator':
         return jsonify({"error": "Forbidden"}), 403
     db = get_db()
+    old = db.execute('SELECT * FROM assigndriver WHERE id=?', (id,)).fetchone()
+    if not old:
+        db.close()
+        return jsonify({"error": "Not found"}), 404
     db.execute('DELETE FROM assigndriver WHERE id=?', (id,))
     db.commit()
+    log_audit('DELETE', 'assigndriver', id, dict(old))
     db.close()
     return jsonify({"success": True})
