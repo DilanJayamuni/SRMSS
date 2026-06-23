@@ -145,7 +145,6 @@ th { background: rgba(0,0,0,0.03); color: var(--text); font-weight: 600; }
     background: var(--bg); position: relative; overflow: hidden;
 }
 
-/* ── SVG Highway Background ── */
 .highway-bg {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
     pointer-events: none;
@@ -183,7 +182,6 @@ th { background: rgba(0,0,0,0.03); color: var(--text); font-weight: 600; }
 @keyframes drive2 { 0% { offset-distance: 0%; } 100% { offset-distance: 100%; } }
 @keyframes drive3 { 0% { offset-distance: 0%; } 100% { offset-distance: 100%; } }
 
-/* ── Glass Card ── */
 .login-card {
     position: relative; z-index: 1;
     background: rgba(255, 255, 255, 0.55);
@@ -268,7 +266,6 @@ th { background: rgba(0,0,0,0.03); color: var(--text); font-weight: 600; }
 .login-card button:disabled { opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none; }
 .btn-text, .btn-loader { display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-/* ── Error ── */
 .login-error {
     display: none; align-items: center; gap: 8px;
     color: var(--danger); font-size: 13px; font-weight: 500;
@@ -277,7 +274,6 @@ th { background: rgba(0,0,0,0.03); color: var(--text); font-weight: 600; }
 }
 .login-error.show { display: flex; }
 
-/* ── Footer ── */
 .login-footer {
     display: flex; flex-direction: column; align-items: center; gap: 10px;
     margin-top: 20px; font-size: 12px;
@@ -286,7 +282,6 @@ th { background: rgba(0,0,0,0.03); color: var(--text); font-weight: 600; }
 .login-forgot:hover { opacity: 0.8; text-decoration: underline; }
 .login-copyright { color: var(--text); opacity: 0.35; font-size: 11px; }
 
-/* ── Shake Animation ── */
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
@@ -294,7 +289,6 @@ th { background: rgba(0,0,0,0.03); color: var(--text); font-weight: 600; }
 }
 .login-card.shake { animation: shake 0.4s ease-in-out; }
 
-/* ── Dark Mode Ribbons ── */
 [data-theme="dark"] .ribbon-1 {
     stroke: url(#ribbon1);
 }
@@ -308,7 +302,6 @@ th { background: rgba(0,0,0,0.03); color: var(--text); font-weight: 600; }
     border-color: rgba(255, 255, 255, 0.06);
 }
 
-/* ── Responsive ── */
 @media (max-width: 1024px) {
     .highway-bg { opacity: 0.7; }
 }
