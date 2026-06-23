@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Live Vehicle Tracking{% endblock %}
+{% block page_title %}Live Vehicle Tracking{% endblock %}
+{% block header_actions %}
+<button class="btn btn-primary" onclick="refreshTracking()" id="refresh-btn">
+    <i class="fas fa-sync-alt"></i> Refresh
+</button>
+{% endblock %}
+{% block content %}
+<div class="panel" style="padding:0; overflow:hidden;">
+    <div id="tracking-map" style="height:75vh; width:100%;"></div>
+    <div id="tracking-empty" style="display:none; text-align:center; padding:60px 20px;">
+        <i class="fas fa-map-marked-alt" style="font-size:48px; opacity:0.3; margin-bottom:15px;"></i>
+        <h3>No Vehicles in Transit</h3>
+        <p style="opacity:0.7;">Set a schedule status to "In Transit" from the Control Center to see live tracking.</p>
+    </div>
+</div>
+<div id="tracking-status-bar" style="display:flex; justify-content:space-between; align-items:center; padding:8px 15px; font-size:12px; opacity:0.7; border-top:1px solid var(--border);">
+    <span id="tracking-vehicle-count">0 vehicles tracked</span>
+    <span id="tracking-last-update">Last updated: --</span>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/tracking.js"></script>{% endblock %}

@@ -50,6 +50,7 @@
                         {% endif %}
                         {% if user.role == 'Administrator' %}
                         <li class="{% if active_page == 'monitoring' %}active{% endif %}"><a href="/monitoring">Fleet Monitoring</a></li>
+                        <li class="{% if active_page == 'tracking' %}active{% endif %}"><a href="/tracking">Live Tracking</a></li>
                         {% endif %}
                         <li class="{% if active_page == 'viewer' %}active{% endif %}"><a href="/viewer">Track & Fares</a></li>
                     </ul>

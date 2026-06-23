@@ -9,6 +9,7 @@
 </form>
 <div class="panel">
     <h3>Live Trip Status <span style="font-size:12px; opacity:0.7">({{ selected_date if selected_date != today_str else 'Today' }})</span></h3>
+    <p style="font-size:13px; opacity:0.7; margin-bottom:15px;">Use <strong>Start Trip</strong> to mark a schedule as "In Transit" and activate it on the Live Tracking map.</p>
     <div class="grid-2" id="trip-cards"></div>
 </div>
 {% endblock %}

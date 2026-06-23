@@ -337,11 +337,15 @@ function closeViewModal() {
         const isComplete = op.status === 'Completed';
         const statusClass = isDelayed ? 'delayed' : (isComplete ? 'completed' : 'ontime');
         const badgeClass = isDelayed ? 'badge-red' : (isComplete ? 'badge-purple' : 'badge-green');
+        const startBtn = op.status === 'Scheduled'
+            ? `<button class="btn btn-sm btn-primary" onclick="updateTripStatus(${op.id}, 'In Transit')">Start Trip</button>`
+            : '';
         return `<div class="status-card ${statusClass}">
             <h4>${op.route_name} - ${op.registration_no}</h4>
             <p>Driver: ${op.driver_name} | Time: ${op.departure_time}</p>
             <div style="margin-top:10px;">
                 <span class="badge ${badgeClass}">${op.status}</span>
+                ${startBtn}
                 <button class="btn btn-sm btn-secondary" onclick="updateTripStatus(${op.id}, 'Delayed')">Delay</button>
                 <button class="btn btn-sm btn-success" onclick="updateTripStatus(${op.id}, 'Completed')">Complete</button>
             </div>
