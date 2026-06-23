@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Driver Schedule{% endblock %}
+{% block page_title %}Driver Schedule{% endblock %}
+{% block content %}
+<div class="panel">
+    <h3>View Schedule</h3>
+    <div class="form-row">
+        <select id="driver-select">
+            <option value="">-- Select Driver --</option>
+        </select>
+        <button class="btn btn-secondary" onclick="prevMonth()"><i class="fas fa-chevron-left"></i> Prev</button>
+        <span id="month-label" style="font-weight:600; min-width:160px; text-align:center; display:inline-block;"></span>
+        <button class="btn btn-secondary" onclick="nextMonth()">Next <i class="fas fa-chevron-right"></i></button>
+        <button class="btn btn-primary" onclick="todayMonth()">Today</button>
+    </div>
+</div>
+<div class="panel" id="calendar-panel" style="display:none;">
+    <div id="calendar-header" class="calendar-header">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+    </div>
+    <div id="calendar-grid" class="calendar-grid"></div>
+    <div id="day-detail" style="display:none; margin-top:15px; padding-top:15px; border-top:1px solid var(--border);">
+        <h4 id="detail-date" style="margin-bottom:10px;"></h4>
+        <div id="detail-trips"></div>
+    </div>
+</div>
+<div class="panel" id="no-driver-panel">
+    <p style="opacity:0.7; text-align:center;">Select a driver and month to view their schedule.</p>
+</div>
+<div class="panel" style="display:none;" id="proposal-panel">
+    <h3>Propose New Schedule Entry</h3>
+    <p style="font-size:13px; opacity:0.7; margin-bottom:15px;">Submit a proposal for a new schedule entry. It will need to be approved before becoming active.</p>
+    <div class="form-row">
+        <select id="prop-driver"><option value="">Driver</option></select>
+        <select id="prop-vehicle"><option value="">Vehicle</option></select>
+        <select id="prop-route"><option value="">Route</option></select>
+    </div>
+    <div class="form-row">
+        <input type="date" id="prop-date" placeholder="Date">
+        <input type="time" id="prop-departure" placeholder="Departure">
+        <input type="time" id="prop-arrival" placeholder="Arrival">
+    </div>
+    <div class="form-row">
+        <select id="prop-recurrence">
+            <option value="Once">Once</option>
+            <option value="Daily">Daily</option>
+            <option value="Weekly">Weekly</option>
+        </select>
+        <input type="text" id="prop-notes" placeholder="Notes (optional)" style="flex:1;">
+    </div>
+    <button class="btn btn-primary" onclick="submitProposal()">Submit Proposal</button>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/driver_schedule.js"></script>{% endblock %}

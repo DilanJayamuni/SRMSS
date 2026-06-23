@@ -24,9 +24,25 @@ def init_db():
         CREATE TABLE IF NOT EXISTS maintenance_logs (id INTEGER PRIMARY KEY, vehicle_id INTEGER, description TEXT, cost REAL, date TEXT, mileage REAL, status TEXT DEFAULT 'Pending');
         CREATE TABLE IF NOT EXISTS assigndriver (
             id INTEGER PRIMARY KEY,
-            driver_id INTEGER UNIQUE NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
+            driver_id INTEGER NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
             vehicle_id INTEGER UNIQUE NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
             assigned_at TEXT DEFAULT (datetime('now'))
+        );
+        CREATE TABLE IF NOT EXISTS schedule_proposals (
+            id INTEGER PRIMARY KEY,
+            driver_id INTEGER NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
+            vehicle_id INTEGER NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+            route_id INTEGER NOT NULL REFERENCES routes(id) ON DELETE CASCADE,
+            proposed_date TEXT,
+            departure_time TEXT NOT NULL,
+            arrival_time TEXT NOT NULL DEFAULT '',
+            recurrence TEXT DEFAULT 'Once',
+            notes TEXT DEFAULT '',
+            status TEXT DEFAULT 'Pending',
+            proposed_by INTEGER REFERENCES users(id),
+            created_at TEXT DEFAULT (datetime('now')),
+            reviewed_at TEXT,
+            reviewed_by INTEGER REFERENCES users(id)
         );
         CREATE TABLE IF NOT EXISTS assignroute (
             id INTEGER PRIMARY KEY,
@@ -58,6 +74,44 @@ def init_db():
             INSERT INTO drivers_new (id, name, license_no, license_expiry) SELECT id, name, license_no, license_expiry FROM drivers;
             DROP TABLE drivers;
             ALTER TABLE drivers_new RENAME TO drivers;
+        ''')
+
+    cursor.execute("PRAGMA index_list(assigndriver)")
+    ad_indexes = cursor.fetchall()
+    unique_count = sum(1 for idx in ad_indexes if idx[2] == 1)
+    if unique_count > 1:
+        cursor.executescript('''
+            CREATE TABLE assigndriver_new (
+                id INTEGER PRIMARY KEY,
+                driver_id INTEGER NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
+                vehicle_id INTEGER UNIQUE NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+                assigned_at TEXT DEFAULT (datetime('now'))
+            );
+            INSERT INTO assigndriver_new (id, driver_id, vehicle_id, assigned_at)
+            SELECT id, driver_id, vehicle_id, assigned_at FROM assigndriver;
+            DROP TABLE assigndriver;
+            ALTER TABLE assigndriver_new RENAME TO assigndriver;
+        ''')
+
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='schedule_proposals'")
+    if not cursor.fetchone():
+        cursor.execute('''
+            CREATE TABLE schedule_proposals (
+                id INTEGER PRIMARY KEY,
+                driver_id INTEGER NOT NULL REFERENCES drivers(id) ON DELETE CASCADE,
+                vehicle_id INTEGER NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+                route_id INTEGER NOT NULL REFERENCES routes(id) ON DELETE CASCADE,
+                proposed_date TEXT,
+                departure_time TEXT NOT NULL,
+                arrival_time TEXT NOT NULL DEFAULT '',
+                recurrence TEXT DEFAULT 'Once',
+                notes TEXT DEFAULT '',
+                status TEXT DEFAULT 'Pending',
+                proposed_by INTEGER REFERENCES users(id),
+                created_at TEXT DEFAULT (datetime('now')),
+                reviewed_at TEXT,
+                reviewed_by INTEGER REFERENCES users(id)
+            )
         ''')
 
     cursor.execute("PRAGMA table_info(schedules)")
@@ -107,6 +161,8 @@ def init_db():
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_maint_date ON maintenance_logs(date)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_sched_departure ON schedules(departure_time)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_sched_status ON schedules(status)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_sched_driver_departure ON schedules(driver_id, departure_time)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_proposal_status ON schedule_proposals(status)")
 
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('admin', 'admin123', 'Administrator')")
     cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES ('super', 'super123', 'Supervisor')")

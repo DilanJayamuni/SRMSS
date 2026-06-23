@@ -21,6 +21,8 @@ def create_app():
     from controllers.assign_route import assign_route_bp
     from controllers.approvals import approvals_bp
     from controllers.users import users_bp
+    from controllers.driver_schedule import driver_schedule_bp
+    from controllers.schedule_proposals import schedule_proposals_bp
 
     app.register_blueprint(login_bp)
     app.register_blueprint(dashboard_bp)
@@ -35,5 +37,7 @@ def create_app():
     app.register_blueprint(reports_bp)
     app.register_blueprint(approvals_bp)
     app.register_blueprint(users_bp)
+    app.register_blueprint(driver_schedule_bp)
+    app.register_blueprint(schedule_proposals_bp)
 
     return app

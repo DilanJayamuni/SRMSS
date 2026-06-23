@@ -420,6 +420,78 @@ th { background: rgba(0,0,0,0.03); color: var(--text); font-weight: 600; }
 
 .header-export-btn { }
 
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    margin-bottom: 4px;
+}
+.calendar-header div {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    opacity: 0.6;
+    padding: 8px 0;
+    letter-spacing: 0.5px;
+}
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+.calendar-day {
+    min-height: 80px;
+    padding: 6px;
+    background: var(--card-bg);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border: 1px solid transparent;
+}
+.calendar-day:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary);
+}
+.calendar-day.empty {
+    background: transparent;
+    cursor: default;
+}
+.calendar-day.empty:hover {
+    border-color: transparent;
+}
+.calendar-day .day-number {
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0.7;
+}
+.calendar-day.has-trips .day-number {
+    opacity: 1;
+    color: var(--primary);
+}
+.calendar-day .trip-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+}
+.calendar-day .trip-label {
+    font-size: 10px;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 @media print {
     body * { visibility: hidden; }
     #printArea, #printArea * { visibility: visible; }

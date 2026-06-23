@@ -53,11 +53,6 @@ def delete_driver(id):
         db.close()
         return jsonify({"error": f"Cannot delete: this driver is used in {schedule_count['cnt']} schedule(s). Remove or reschedule these entries first."}), 409
 
-    assign_count = db.execute('SELECT COUNT(*) as cnt FROM assigndriver WHERE driver_id=?', (id,)).fetchone()
-    if assign_count['cnt'] > 0:
-        db.close()
-        return jsonify({"error": "Cannot delete: this driver is currently assigned to a vehicle. Unassign the driver first."}), 409
-
     db.execute('DELETE FROM drivers WHERE id=?', (id,))
     db.commit()
     db.close()

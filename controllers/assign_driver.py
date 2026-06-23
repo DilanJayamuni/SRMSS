@@ -19,15 +19,25 @@ def api_assign_driver():
         driver_id = d['driver_id']
         vehicle_id = d['vehicle_id']
 
-        taken_driver = db.execute('SELECT id FROM assigndriver WHERE driver_id=?', (driver_id,)).fetchone()
-        if taken_driver:
-            db.close()
-            return jsonify({"error": "This driver is already assigned to a vehicle."}), 409
-
         taken_vehicle = db.execute('SELECT id FROM assigndriver WHERE vehicle_id=?', (vehicle_id,)).fetchone()
         if taken_vehicle:
             db.close()
             return jsonify({"error": "This vehicle already has a driver assigned."}), 409
+
+        existing = db.execute('SELECT vehicle_id FROM assigndriver WHERE driver_id=?', (driver_id,)).fetchall()
+        if existing:
+            existing_ids = [row['vehicle_id'] for row in existing]
+            placeholders = ','.join('?' * len(existing_ids))
+            conflict = db.execute(f'''
+                SELECT 1 FROM schedules s1
+                JOIN schedules s2 ON s1.vehicle_id=? AND s2.vehicle_id IN ({placeholders})
+                AND s1.departure_time < s2.arrival_time
+                AND (s1.arrival_time IS NULL OR s1.arrival_time > s2.departure_time)
+                LIMIT 1
+            ''', [vehicle_id] + existing_ids).fetchone()
+            if conflict:
+                db.close()
+                return jsonify({"error": "This driver's existing vehicles have timetable entries that overlap with this vehicle's schedules."}), 409
 
         db.execute('INSERT INTO assigndriver (driver_id, vehicle_id) VALUES (?,?)',
                    (driver_id, vehicle_id))
@@ -51,10 +61,7 @@ def api_assign_driver_available():
     if 'user' not in session:
         return jsonify({"error": "Unauthorized"}), 401
     db = get_db()
-    drivers = db.execute('''
-        SELECT id, name FROM drivers
-        WHERE id NOT IN (SELECT driver_id FROM assigndriver)
-    ''').fetchall()
+    drivers = db.execute('SELECT id, name FROM drivers ORDER BY name').fetchall()
     vehicles = db.execute('''
         SELECT id, registration_no FROM vehicles
         WHERE id NOT IN (SELECT vehicle_id FROM assigndriver)
@@ -98,15 +105,25 @@ def update_assign_driver(id):
     driver_id = d.get('driver_id', current['driver_id'])
     vehicle_id = d.get('vehicle_id', current['vehicle_id'])
 
-    taken_driver = db.execute('SELECT id FROM assigndriver WHERE driver_id=? AND id!=?', (driver_id, id)).fetchone()
-    if taken_driver:
-        db.close()
-        return jsonify({"error": "This driver is already assigned to a vehicle."}), 409
-
     taken_vehicle = db.execute('SELECT id FROM assigndriver WHERE vehicle_id=? AND id!=?', (vehicle_id, id)).fetchone()
     if taken_vehicle:
         db.close()
         return jsonify({"error": "This vehicle already has a driver assigned."}), 409
+
+    existing = db.execute('SELECT vehicle_id FROM assigndriver WHERE driver_id=? AND id!=?', (driver_id, id)).fetchall()
+    if existing:
+        existing_ids = [row['vehicle_id'] for row in existing]
+        placeholders = ','.join('?' * len(existing_ids))
+        conflict = db.execute(f'''
+            SELECT 1 FROM schedules s1
+            JOIN schedules s2 ON s1.vehicle_id=? AND s2.vehicle_id IN ({placeholders})
+            AND s1.departure_time < s2.arrival_time
+            AND (s1.arrival_time IS NULL OR s1.arrival_time > s2.departure_time)
+            LIMIT 1
+        ''', [vehicle_id] + existing_ids).fetchone()
+        if conflict:
+            db.close()
+            return jsonify({"error": "This driver's existing vehicles have timetable entries that overlap with this vehicle's schedules."}), 409
 
     db.execute('UPDATE assigndriver SET driver_id=?, vehicle_id=? WHERE id=?',
                (driver_id, vehicle_id, id))
